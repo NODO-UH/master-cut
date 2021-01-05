@@ -20,8 +20,17 @@ const (
 	ErrReadAll  = "read all error"
 )
 
+var cutChan chan bool
+var uncutChan chan bool
+
+func init() {
+	cutChan = make(chan bool, 1)
+	uncutChan = make(chan bool, 1)
+}
+
 // Cut handle POST /cust?group=[group]&user=[user]
 func Cut(ctx *gin.Context) {
+	cutChan <- true
 	if user, ok := ctx.GetQuery("user"); !ok {
 		ctx.AbortWithError(http.StatusBadRequest, errors.New("user required"))
 	} else if group, ok := ctx.GetQuery("group"); !ok {
@@ -40,9 +49,11 @@ func Cut(ctx *gin.Context) {
 		cmd := exec.Command("sh", *group.Script)
 		cmd.Run()
 	}
+	<-cutChan
 }
 
 func Uncut(ctx *gin.Context) {
+	uncutChan <- true
 	if user, ok := ctx.GetQuery("user"); !ok {
 		ctx.AbortWithError(http.StatusBadRequest, errors.New("user required"))
 	} else if group, ok := ctx.GetQuery("group"); !ok {
@@ -77,4 +88,5 @@ func Uncut(ctx *gin.Context) {
 			cmd.Run()
 		}
 	}
+	<-uncutChan
 }
