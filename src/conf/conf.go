@@ -12,6 +12,7 @@ type GroupConfiguration struct {
 }
 
 type MasterCutConfiguration struct {
+	Logs   *string              `json:"logs"`
 	Groups []GroupConfiguration `json:"groups"`
 }
 
