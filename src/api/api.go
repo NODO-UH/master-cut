@@ -16,8 +16,9 @@ import (
 )
 
 const (
-	ErrOpenFile = "open file err"
-	ErrReadAll  = "read all error"
+	ErrOpenFile     = "open file err"
+	ErrReadAll      = "read all error"
+	ErrInvalidGroup = "invalid group"
 )
 
 var cutChan chan bool
@@ -87,6 +88,8 @@ func Uncut(ctx *gin.Context) {
 			cmd := exec.Command("sh", *group.Script)
 			cmd.Run()
 		}
+	} else {
+		ctx.AbortWithError(http.StatusBadRequest, errors.New(ErrInvalidGroup))
 	}
 	<-uncutChan
 }
